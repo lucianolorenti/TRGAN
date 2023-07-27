@@ -18,11 +18,11 @@ class Encoder_onehot(nn.Module):
             nn.ReLU(),
             nn.Linear(2**6, 2**7),
             nn.ReLU(),
-            nn.Linear(2**7, 2**8),
+            nn.Linear(2**7, 2**7),
             nn.ReLU(),
-            nn.Linear(2**8, 2**8),
+            nn.Linear(2**7, 2**7),
             nn.ReLU(),
-            nn.Linear(2**8, self.hidden_dim),
+            nn.Linear(2**7, self.hidden_dim),
             nn.Tanh()
         )
 
@@ -40,15 +40,15 @@ class Decoder_onehot(nn.Module):
         self.data_dim = data_dim
         
         self.model = nn.Sequential(
-            nn.Linear(self.hidden_dim, 2**6),
+            nn.Linear(self.hidden_dim, 2**7),
             nn.ReLU(),
-            nn.Linear(2**6, 2**7),
+            nn.Linear(2**7, 2**7),
             nn.ReLU(),
-            nn.Linear(2**7, 2**8),
+            nn.Linear(2**7, 2**7),
             nn.ReLU(),
-            nn.Linear(2**8, 2**8),
+            nn.Linear(2**7, 2**7),
             nn.ReLU(),
-            nn.Linear(2**8, self.data_dim),
+            nn.Linear(2**7, self.data_dim),
             nn.Sigmoid()
         )
 
@@ -67,13 +67,13 @@ class Encoder_client_emb(nn.Module):
                 
         self.model = nn.Sequential(
             nn.Linear(self.data_dim, 2**6),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**6, 2**8),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**8, 2**8),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**8, 2**6),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**6, self.hidden_dim),
             nn.Tanh()
         )
@@ -91,13 +91,13 @@ class Decoder_client_emb(nn.Module):
         
         self.model = nn.Sequential(
             nn.Linear(self.hidden_dim, 2**6),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**6, 2**8),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**8, 2**8),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**8, 2**6),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**6, self.data_dim),
             nn.Tanh()
         )
@@ -115,13 +115,13 @@ class Encoder(nn.Module):
                 
         self.model = nn.Sequential(
             nn.Linear(self.data_dim, 2**6),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**6, 2**8),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**8, 2**8),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**8, 2**6),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**6, self.hidden_dim),
             nn.Tanh()
         )
@@ -139,13 +139,13 @@ class Decoder(nn.Module):
         
         self.model = nn.Sequential(
             nn.Linear(self.hidden_dim, 2**6),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**6, 2**8),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**8, 2**8),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**8, 2**6),
-            nn.ReLU(),
+            nn.LeakyReLU(0.02),
             nn.Linear(2**6, self.data_dim),
             nn.Tanh()
         )
