@@ -90,7 +90,8 @@ class TRGANConfig(BaseModel):
     num_epochs: int = 1
     time_generation: TimeGenerationConfig = TimeGenerationConfig()
     feature_extraction: FeatureExtractorConfig = default_feature_extractor_config()
-
+    clip_gradient_d1 = 0.001
+    clip_gradient_d2 = 0.001
 
 class TRGAN:
     def __init__(
@@ -228,8 +229,8 @@ class TRGAN:
 
         self.loss_array = []
 
-        b_d1 = 0.001
-        b_d2 = 0.001
+        b_d1 = self.config.clip_gradient_d1
+        b_d2 = self.config.clip_gradient_d2
         epochs = tqdm(range(self.config.num_epochs))
         for epoch in epochs:
             for batch_idx, X in enumerate(loader_g):

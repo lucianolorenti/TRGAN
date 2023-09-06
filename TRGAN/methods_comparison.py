@@ -1,37 +1,18 @@
 from pathlib import Path
-import pandas as pd
-import numpy as np
+
 import matplotlib.pyplot as plt
-import seaborn as sns
-import copy
-
-import torch
-from torch import optim
-from torch.autograd import Variable, grad
-from torch.utils.data import DataLoader, Dataset
-import torch.nn as nn
-import torch.nn.functional as F
-
-from sklearn.metrics import mean_squared_error, mean_absolute_error
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from scipy.special import rel_entr, kl_div
+import numpy as np
+import pandas as pd
 from scipy.spatial.distance import jensenshannon
-from scipy.stats import kstest, ks_2samp, wasserstein_distance
-import scipy.stats as sts
+from scipy.stats import ks_2samp, kstest, wasserstein_distance
+from sdv.metadata import SingleTableMetadata
+from sdv.single_table import (CopulaGANSynthesizer, CTGANSynthesizer,
+                              TVAESynthesizer)
+from torch.autograd import grad
 from tqdm import tqdm
 
-from TRGAN.TRGAN_main import *
 from TRGAN.encoders import *
-import TRGAN.TRGAN_train_load_modules as trgan_train
 from TRGAN.evaluation_metrics import *
-
-
-from sdv.single_table import CopulaGANSynthesizer
-from sdv.metadata import SingleTableMetadata
-from sdv.single_table import CTGANSynthesizer
-from sdv.single_table import TVAESynthesizer
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
 
 
 def train_model(CLS, data: pd.DataFrame, metadata, output_path: Path, epochs: int = 10):
@@ -40,6 +21,11 @@ def train_model(CLS, data: pd.DataFrame, metadata, output_path: Path, epochs: in
     synthesizer.save(str(output_path))
     return synthesizer
 
+
+def load_model(CLS, metadata, model_path: Path):
+    synthesizer = CLS(metadata)
+    synthesizer = synthesizer.load(model_path)
+    return synthesizer
 
 def train_copulagan(data: pd.DataFrame, metadata, output_path: Path, epochs: int = 10):
     return train_model(CopulaGANSynthesizer, data, metadata, output_path, epochs)
@@ -53,14 +39,12 @@ def train_tvae(data: pd.DataFrame, metadata, output_path: Path, epochs: int = 10
     return train_model(TVAESynthesizer, data, metadata, output_path, epochs)
 
 
-def pipi():
-    synth_copulagan = synthesizer.sample(num_rows=n_samples)
+def generate_samples(synthesizer, metadata, n_samples=10_000):
+    synth_data = synthesizer.sample(num_rows=n_samples)
 
-    synth_df_cat_copulagan = pd.get_dummies(
-        synth_copulagan[cat_columns], columns=cat_columns
-    )
 
-    return synth_copulagan, synth_df_cat_copulagan
+
+    return synth_data
 
 
 """

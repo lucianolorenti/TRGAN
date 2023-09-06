@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from TRGAN.dataset.metadata import  TRGANMetadata, TRGANType
 import gdown
-
+from datetime import datetime
 
 def czech_bank() -> Tuple[pd.DataFrame, TRGANMetadata]:
     def build_metadata():
@@ -32,16 +32,39 @@ def czech_bank() -> Tuple[pd.DataFrame, TRGANMetadata]:
             datetime_format="%Y %m %d",
         )
         return metadata
-
-    if (DATA_PATH / "data_czech.csv").is_file():
+    
+    if not (DATA_PATH / "data_czech.csv").is_file():
         URL = "https://drive.google.com/uc?id=1fBBx_5_P4CA6yYIi-5pBd_bTbgZo61V3"
-        gdown.download(URL, DATA_PATH / "data_czech.csv", quiet=False)
+        gdown.download(URL, str(DATA_PATH / "data_czech.csv"), quiet=False)
     data = pd.read_csv(DATA_PATH / "data_czech.csv")
+    
+    czech_date_parser = lambda x: datetime.strptime(str(x), "%y%m%d")
+    data["datetime"] = data["date"].apply(czech_date_parser)
+    data = data.rename(
+        columns={
+            "account_id": 'customer', 
+            'tcode': 'mcc', 
+            'datetime': 'transaction_date'
+        }
+    )
+
+    data = data.drop(
+        ['date', 'Unnamed: 0', 'type',
+          'operation', 'k_symbol', 'balance', 'age', 'column_a'], 
+        axis=1)
+
+   
+    idx_customer = (data['customer'].value_counts().loc[(data['customer'].value_counts() > 20) == True]).index.tolist()
+    data = data[data['customer'].isin(idx_customer)]
+    data['transaction_date'] = pd.to_datetime(data['transaction_date'])
+    data = data.sort_values(by='transaction_date')
+    data = data.reset_index(drop=True)
     return data, build_metadata()
 
 
 def uk_bank() -> Tuple[pd.DataFrame, TRGANMetadata]:
     def build_metadata():
+
         metadata = TRGANMetadata()
         metadata.add_column(
             column_name="amount", type="numerical", computer_representation="Float"

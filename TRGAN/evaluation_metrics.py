@@ -1,3 +1,4 @@
+from typing import List
 import pandas as pd
 import numpy as np
 import copy
@@ -10,6 +11,8 @@ from sdmetrics.single_column import TVComplement
 from sdv.metadata import SingleTableMetadata
 from sdmetrics.single_table import NewRowSynthesis
 from sdmetrics.column_pairs import ContingencySimilarity
+
+from TRGAN.comparison import get_cashflow
 
 """
 NUMERICAL
@@ -55,7 +58,21 @@ def evaluate_numerical(data_array, index):
     return res_df
 
 
-def evaluate_numerical_cashflow(data_array, index):
+def evaluate_numerical_cashflow(real:pd.DataFrame, synths:List[pd.DataFrame], index):
+    cash_flow_real = get_cashflow(real)
+
+    
+    data_array = [cash_flow_real, *[get_cashflow(s, real.customer) for s in synths] ]
+    
+    min_length = np.min(list(map(lambda x: len(x), data_array)))
+
+    data_array = [
+        pd.Series(random.sample(a.values.tolist(), min_length))
+        for a in data_array
+
+    ]
+    
+
     mean_values = list(map(lambda x: x.mean(), data_array))
     std_values = list(map(lambda x: x.std(), data_array))
     kurt_values = list(map(lambda x: x.kurtosis(), data_array))
